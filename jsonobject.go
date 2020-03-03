@@ -228,7 +228,7 @@ func (this *JsonObject) SetBool(k string, v bool) {
 func (this *JsonObject) SetDouble(k string, v float64) {
 	e0 := this.addElement(JSONString(k))
 	e0.value.vType = val_Type_Number
-	e0.value.vNumber.d(v)
+	e0.value.vNumber.setVal(v)
 }
 
 func (this *JsonObject) SetFloat(k string, v float32) {
@@ -244,7 +244,9 @@ func (this *JsonObject) SetInt32(k string, v int32) {
 }
 
 func (this *JsonObject) SetInt64(k string, v int64) {
-	this.SetDouble(k, float64(v))
+	e0 := this.addElement(JSONString(k))
+	e0.value.vType = val_Type_Number
+	e0.value.vNumber.setVal(v)
 }
 
 func (this *JsonObject) SetNull(k string) {

@@ -244,9 +244,30 @@ func (n *JSONNumber) setISign(i int8) {
 	n.iSign = i
 }
 
-func (n *JSONNumber) d(v float64) {
-	n.iSign = number_set_mark
-	n.dbl = v
+//func (n *JSONNumber) d(v float64) {
+//	n.iSign = number_set_mark
+//	n.dbl = v
+//}
+
+func (n *JSONNumber) setVal(v interface{}) {
+	n.init()
+	switch v.(type) {
+	case float64:
+		n.dbl = v.(float64)
+	case int64:
+		i := v.(int64)
+		if i < 0 {
+			n.setISign(-1)
+			n.integer = uint64(0 - i)
+		} else {
+			n.setISign(1)
+			n.integer = uint64(i)
+		}
+		s := fmt.Sprintf(`%d`, n.integer)
+		n.iCount = len(s)
+	default:
+		panic(fmt.Errorf(`unsupported type`))
+	}
 }
 
 func (n *JSONNumber) toString() string {
@@ -308,7 +329,7 @@ func (this *JsonElement) newJsonValue() (obj *JsonValue) {
 	obj.vObject = nil
 	obj.vArray = nil
 	obj.vString = nil
-	obj.vNumber.d(0)
+	obj.vNumber.setVal(float64(0))
 	return obj
 }
 

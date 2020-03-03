@@ -103,10 +103,11 @@ func (this *JsonArray) AddBool(v bool) int {
 	return this.currIndex()
 }
 
+
 func (this *JsonArray) AddDouble(v float64) int {
 	e0 := this.addElement()
 	e0.value.vType = val_Type_Number
-	e0.value.vNumber.d(v)
+	e0.value.vNumber.setVal(v)
 	return this.currIndex()
 }
 
@@ -123,7 +124,10 @@ func (this *JsonArray) AddInt32(v int32) int {
 }
 
 func (this *JsonArray) AddInt64(v int64) int {
-	return this.AddDouble(float64(v))
+	e0 := this.addElement()
+	e0.value.vType = val_Type_Number
+	e0.value.vNumber.setVal(v)
+	return this.currIndex()
 }
 
 func (this *JsonArray) AddNull() int {
@@ -276,7 +280,7 @@ func (this *JsonArray) SetBool(idx int, b bool) {
 func (this *JsonArray) SetDouble(idx int, f64 float64) {
 	val := this.insertValue(idx)
 	val.vType = val_Type_Number
-	val.vNumber.d(f64)
+	val.vNumber.setVal(f64)
 }
 
 func (this *JsonArray) SetFloat(idx int, f32 float32) {
