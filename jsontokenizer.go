@@ -9,236 +9,236 @@ func newJsonTokenizer(s JSONString) (tok *JsonTokenizer) {
 	return tok
 }
 
-func (this *JsonTokenizer) eof() bool {
-	if this == nil {
+func (tok *JsonTokenizer) eof() bool {
+	if tok == nil {
 		return true
 	}
-	return this.offset == this.size
+	return tok.offset == tok.size
 }
 
-func (this *JsonTokenizer) seek(v int) {
-	this.offset += v
+func (tok *JsonTokenizer) seek(v int) {
+	tok.offset += v
 }
 
-func (this *JsonTokenizer) isStrTag() bool {
-	if this.size-this.offset < 2 {
+func (tok *JsonTokenizer) isStrTag() bool {
+	if tok.size-tok.offset < 2 {
 		return false
 	}
-	return this.data[this.offset] == '"'
+	return tok.data[tok.offset] == '"'
 }
 
-func (this *JsonTokenizer) currCharIs(c rune) (b bool) {
-	if this.eof() {
+func (tok *JsonTokenizer) currCharIs(c rune) (b bool) {
+	if tok.eof() {
 		return false
 	}
-	return this.data[this.offset] == c
+	return tok.data[tok.offset] == c
 }
 
-func (this *JsonTokenizer) currStrIs(s string) (b bool) {
-	if this.eof() {
+func (tok *JsonTokenizer) currStrIs(s string) (b bool) {
+	if tok.eof() {
 		return false
 	}
 	size := len(JSONString(s))
-	if this.size-this.offset < size {
+	if tok.size-tok.offset < size {
 		return false
 	}
-	header := this.data[this.offset : this.offset+size]
+	header := tok.data[tok.offset : tok.offset+size]
 	return string(header) == s
 }
 
-func (this *JsonTokenizer) getCurrChar() rune {
-	return this.at(this.offset)
+func (tok *JsonTokenizer) getCurrChar() rune {
+	return tok.at(tok.offset)
 }
 
-func (this *JsonTokenizer) at(i int) rune {
-	return this.data[i]
+func (tok *JsonTokenizer) at(i int) rune {
+	return tok.data[i]
 }
 
-func (this *JsonTokenizer) currIsArrayBegin() bool {
-	return this.currCharIs('[')
+func (tok *JsonTokenizer) currIsArrayBegin() bool {
+	return tok.currCharIs('[')
 }
 
-func (this *JsonTokenizer) currIsArrayEnd() bool {
-	return this.currCharIs(']')
+func (tok *JsonTokenizer) currIsArrayEnd() bool {
+	return tok.currCharIs(']')
 }
 
-func (this *JsonTokenizer) currIsObjectBegin() bool {
-	return this.currCharIs('{')
+func (tok *JsonTokenizer) currIsObjectBegin() bool {
+	return tok.currCharIs('{')
 }
 
-func (this *JsonTokenizer) currIsObjectEnd() bool {
-	return this.currCharIs('}')
+func (tok *JsonTokenizer) currIsObjectEnd() bool {
+	return tok.currCharIs('}')
 }
 
-func (this *JsonTokenizer) currStrSize() int {
-	if !this.isStrTag() {
+func (tok *JsonTokenizer) currStrSize() int {
+	if !tok.isStrTag() {
 		return 0
 	}
 	var idx int
-	for idx = this.offset + 1; idx < this.size; idx++ {
-		if this.data[idx] == '"' && this.data[idx-1] != '\\' {
+	for idx = tok.offset + 1; idx < tok.size; idx++ {
+		if tok.data[idx] == '"' && tok.data[idx-1] != '\\' {
 			break
 		}
 	}
-	return idx - this.offset
+	return idx - tok.offset
 }
 
-func (this *JsonTokenizer) indexTrim(v int) {
-	if this.eof() {
+func (tok *JsonTokenizer) indexTrim(v int) {
+	if tok.eof() {
 		return
 	}
-	this.seek(v)
+	tok.seek(v)
 	var idx int
 	var c rune
-	for idx = this.offset; idx < this.size; idx++ {
-		c = this.data[idx]
+	for idx = tok.offset; idx < tok.size; idx++ {
+		c = tok.data[idx]
 		if c != ' ' && c != '\t' && c != '\n' && c != '\r' {
 			break
 		}
 	}
-	this.offset = idx
+	tok.offset = idx
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (this *JsonTokenizer) parseObject() (obj *JsonObject) {
-	if !this.currIsObjectBegin() {
+func (tok *JsonTokenizer) parseObject() (obj *JsonObject) {
+	if !tok.currIsObjectBegin() {
 		return nil
 	}
 	obj = NewObject()
-	this.indexTrim(1)
-	if this.currIsObjectEnd() {
-		this.seek(1)
+	tok.indexTrim(1)
+	if tok.currIsObjectEnd() {
+		tok.seek(1)
 		return obj //空的JSON对象
 	}
-	this.indexTrim(0)
-	k_str := this.parseString()
-	this.indexTrim(0)
+	tok.indexTrim(0)
+	k_str := tok.parseString()
+	tok.indexTrim(0)
 	e0 := obj.addElement(k_str)
-	if !this.currCharIs(':') {
+	if !tok.currCharIs(':') {
 		return nil
 	}
-	this.indexTrim(1)
-	if e0.value.parse(this); this.err {
+	tok.indexTrim(1)
+	if e0.value.parse(tok); tok.err {
 		return nil
 	}
-	this.indexTrim(0)
-	for this.currCharIs(',') {
-		this.indexTrim(1)
-		k_str = this.parseString()
-		this.indexTrim(0)
+	tok.indexTrim(0)
+	for tok.currCharIs(',') {
+		tok.indexTrim(1)
+		k_str = tok.parseString()
+		tok.indexTrim(0)
 		e0 = obj.addElement(k_str)
-		if !this.currCharIs(':') {
+		if !tok.currCharIs(':') {
 			return nil
 		}
-		this.indexTrim(1)
-		if e0.value.parse(this); this.err {
+		tok.indexTrim(1)
+		if e0.value.parse(tok); tok.err {
 			return nil
 		}
-		this.indexTrim(0)
+		tok.indexTrim(0)
 	}
 
-	if this.currIsObjectEnd() {
-		this.indexTrim(1)
+	if tok.currIsObjectEnd() {
+		tok.indexTrim(1)
 		return obj
 	}
-	this.err = true
+	tok.err = true
 	return nil
 }
 
-func (this *JsonTokenizer) parseArray() (arr *JsonArray) {
-	if !this.currIsArrayBegin() {
+func (tok *JsonTokenizer) parseArray() (arr *JsonArray) {
+	if !tok.currIsArrayBegin() {
 		return nil
 	}
 	arr = NewArray()
-	this.indexTrim(1)
-	if this.currIsArrayEnd() {
-		this.seek(1)
+	tok.indexTrim(1)
+	if tok.currIsArrayEnd() {
+		tok.seek(1)
 		return arr
 	}
-	this.indexTrim(0)
+	tok.indexTrim(0)
 	e0 := arr.addElement()
-	this.indexTrim(0)
-	if e0.value.parse(this); this.err {
+	tok.indexTrim(0)
+	if e0.value.parse(tok); tok.err {
 		return nil
 	}
-	this.indexTrim(0)
-	for this.currCharIs(',') {
-		this.indexTrim(1)
+	tok.indexTrim(0)
+	for tok.currCharIs(',') {
+		tok.indexTrim(1)
 		e0 = arr.addElement()
-		this.indexTrim(0)
-		if e0.value.parse(this); this.err {
+		tok.indexTrim(0)
+		if e0.value.parse(tok); tok.err {
 			return nil
 		}
-		this.indexTrim(0)
+		tok.indexTrim(0)
 	}
 
-	if this.currIsArrayEnd() {
-		this.indexTrim(1)
+	if tok.currIsArrayEnd() {
+		tok.indexTrim(1)
 		return arr
 	}
-	this.err = true
+	tok.err = true
 	return nil
 }
 
-func (this *JsonTokenizer) parseNumber() (num JSONNumber) {
+func (tok *JsonTokenizer) parseNumber() (num JSONNumber) {
 	num.init()
-	if this.currCharIs('-') {
+	if tok.currCharIs('-') {
 		num.setISign(-1)
-		this.seek(1)
+		tok.seek(1)
 	}
 
-	for this.getCurrChar() >= '0' && this.getCurrChar() <= '9' {
-		num.incInteger(this.getCurrChar())
-		this.seek(1)
+	for tok.getCurrChar() >= '0' && tok.getCurrChar() <= '9' {
+		num.incInteger(tok.getCurrChar())
+		tok.seek(1)
 	}
 
 	if num.iCount < 1 {
-		this.err = true
+		tok.err = true
 		return
 	}
 
-	if this.getCurrChar() == '.' {
-		this.seek(1)
-		for this.getCurrChar() >= '0' && this.getCurrChar() <= '9' {
-			num.incDecimal(this.getCurrChar())
-			this.seek(1)
+	if tok.getCurrChar() == '.' {
+		tok.seek(1)
+		for tok.getCurrChar() >= '0' && tok.getCurrChar() <= '9' {
+			num.incDecimal(tok.getCurrChar())
+			tok.seek(1)
 		}
 	}
-	c := this.getCurrChar()
+	c := tok.getCurrChar()
 	if c == 'e' || c == 'E' {
 		num.eMark = string(c)
-		this.seek(1)
-		if this.currCharIs('+') {
+		tok.seek(1)
+		if tok.currCharIs('+') {
 			num.pMark = `+`
-			this.seek(1)
-		} else if this.currCharIs('-') {
+			tok.seek(1)
+		} else if tok.currCharIs('-') {
 			num.pMark = `-`
-			this.seek(1)
+			tok.seek(1)
 		}
 
-		for this.getCurrChar() >= '0' && this.getCurrChar() <= '9' {
-			num.incPower(this.getCurrChar())
-			this.seek(1)
+		for tok.getCurrChar() >= '0' && tok.getCurrChar() <= '9' {
+			num.incPower(tok.getCurrChar())
+			tok.seek(1)
 		}
 	}
 	return
 }
 
-func (this *JsonTokenizer) parseString() (str JSONString) {
+func (tok *JsonTokenizer) parseString() (str JSONString) {
 	var idx1, idx2 int
 	var uc uint
-	if this.eof() || !this.isStrTag() {
+	if tok.eof() || !tok.isStrTag() {
 		return nil
 	} //非字符串起始标志
-	out := make(JSONString, this.currStrSize())
+	out := make(JSONString, tok.currStrSize())
 	idx2 = 0
-	for idx1 = this.offset + 1; idx1 < this.size && this.data[idx1] != '"'; idx1++ {
-		if this.data[idx1] != '\\' {
-			out[idx2] = this.data[idx1]
+	for idx1 = tok.offset + 1; idx1 < tok.size && tok.data[idx1] != '"'; idx1++ {
+		if tok.data[idx1] != '\\' {
+			out[idx2] = tok.data[idx1]
 		} else {
 			idx1++
-			switch this.data[idx1] {
+			switch tok.data[idx1] {
 			case 'b':
 				out[idx2] = '\b'
 			case 'f':
@@ -251,23 +251,23 @@ func (this *JsonTokenizer) parseString() (str JSONString) {
 				out[idx2] = '\t'
 			case 'u': //transcode utf16 to utf8
 				idx1++
-				uc = parse_hex4(this.data[idx1:])
+				uc = parse_hex4(tok.data[idx1:])
 				out[idx2] = rune(uc)
 				idx1 += 3
 			default:
-				out[idx2] = this.data[idx1]
+				out[idx2] = tok.data[idx1]
 			}
 		}
 		idx2++
 	}
 
-	if idx1 < this.size {
-		if this.data[idx1] == '"' {
+	if idx1 < tok.size {
+		if tok.data[idx1] == '"' {
 			idx1++
 		}
-		this.offset = idx1
+		tok.offset = idx1
 	} else {
-		this.err = true
+		tok.err = true
 	}
 	return out[:idx2]
 }
