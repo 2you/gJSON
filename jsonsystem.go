@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func locaFromFile(fname string) (data JSONString, err error) {
+func loadFromFile(fname string) (data JSONString, err error) {
 	f, e := os.Open(fname)
 	if e != nil {
 		return nil, e
@@ -112,7 +112,7 @@ func New(ss ...string) *JsonNode {
 }
 
 func LoadFromFile(fname string) (node *JsonNode, err error) {
-	data, err := locaFromFile(fname)
+	data, err := loadFromFile(fname)
 	if err != nil {
 		return nil, err
 	}
@@ -322,9 +322,9 @@ func newJsonElement() (element *JsonElement) {
 	return element
 }
 
-func (this *JsonElement) newJsonValue() (obj *JsonValue) {
+func (e *JsonElement) newJsonValue() (obj *JsonValue) {
 	obj = new(JsonValue)
-	obj.e = this
+	obj.e = e
 	obj.vType = val_Type_Invalid
 	obj.vObject = nil
 	obj.vArray = nil
@@ -335,32 +335,32 @@ func (this *JsonElement) newJsonValue() (obj *JsonValue) {
 
 //jsonBase
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-func (this *jsonBase) init() {
-	this.childCount = 0
-	this.values = make([]*JsonValue, 0, 16)
+func (b *jsonBase) init() {
+	b.childCount = 0
+	b.values = make([]*JsonValue, 0, 16)
 }
 
-func (this *jsonBase) addElement(k interface{}) (element *JsonElement) {
+func (b *jsonBase) addElement(k interface{}) (element *JsonElement) {
 	s := JSONString{}
 	if k != nil {
 		s = k.(JSONString)
-		element = this.getElement(s)
+		element = b.getElement(s)
 	}
 
 	if element == nil {
 		element = newJsonElement()
-		this.values = append(this.values, element.value)
+		b.values = append(b.values, element.value)
 		if k != nil {
 			element.key = s
 		}
-		this.childCount++
+		b.childCount++
 	}
 	return element
 }
 
-func (this *jsonBase) delElement(k interface{}) bool {
+func (b *jsonBase) delElement(k interface{}) bool {
 	var idx int
-	e0 := this.getElement(k)
+	e0 := b.getElement(k)
 	if e0 == nil {
 		return false
 	}
@@ -368,21 +368,21 @@ func (this *jsonBase) delElement(k interface{}) bool {
 	if reflect.TypeOf(k).Kind() == reflect.Int {
 		idx = k.(int)
 	} else {
-		idx = this.indexOf(e0)
+		idx = b.indexOf(e0)
 	}
-	this.values = append(this.values[0:idx], this.values[idx+1:]...)
-	this.childCount--
+	b.values = append(b.values[0:idx], b.values[idx+1:]...)
+	b.childCount--
 	return true
 }
 
-func (this *jsonBase) getElement(k interface{}) (element *JsonElement) {
+func (b *jsonBase) getElement(k interface{}) (element *JsonElement) {
 	if reflect.TypeOf(k).Kind() == reflect.Int {
 		idx := k.(int)
-		if idx >= 0 && idx < this.childCount {
-			element = this.values[idx].e
+		if idx >= 0 && idx < b.childCount {
+			element = b.values[idx].e
 		}
 	} else {
-		for _, v := range this.values {
+		for _, v := range b.values {
 			if v.e.key.toString() == k.(JSONString).toString() {
 				element = v.e
 				break
@@ -392,23 +392,23 @@ func (this *jsonBase) getElement(k interface{}) (element *JsonElement) {
 	return element
 }
 
-func (this *jsonBase) indexOf(element *JsonElement) int {
+func (b *jsonBase) indexOf(element *JsonElement) int {
 	if element == nil {
 		return -1
 	}
 
-	for i := 0; i < this.childCount; i++ {
-		if this.values[i].e == element {
+	for i := 0; i < b.childCount; i++ {
+		if b.values[i].e == element {
 			return i
 		}
 	}
 	return -1
 }
 
-func (this *jsonBase) print(depth int, bfmt bool) string {
+func (b *jsonBase) print(depth int, bfmt bool) string {
 	var i, j int
 	var out string
-	if this.childCount == 0 {
+	if b.childCount == 0 {
 		return ``
 	}
 	depth++
@@ -416,8 +416,8 @@ func (this *jsonBase) print(depth int, bfmt bool) string {
 		out += "\n"
 	}
 
-	for i = 0; i < this.childCount; i++ {
-		v0 := this.values[i]
+	for i = 0; i < b.childCount; i++ {
+		v0 := b.values[i]
 		if bfmt {
 			for j = 0; j < depth; j++ {
 				out += "\t"
@@ -432,7 +432,7 @@ func (this *jsonBase) print(depth int, bfmt bool) string {
 			}
 		}
 		out += v0.print_value(depth, bfmt)
-		if i != this.childCount-1 {
+		if i != b.childCount-1 {
 			out += `,`
 		}
 
