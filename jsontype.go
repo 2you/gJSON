@@ -1,14 +1,14 @@
 package gJSON
 
 const (
-	val_Type_Invalid = 1
-	val_Type_NULL    = 100
-	val_Type_True    = 101
-	val_Type_False   = 102
-	val_Type_String  = 103
-	val_Type_Array   = 104
-	val_Type_Object  = 105
-	val_Type_Number  = 106
+	valTypeInvalid = 1
+	valTypeNull    = 100
+	valTypeTrue    = 101
+	valTypeFalse   = 102
+	valTypeString  = 103
+	valTypeArray   = 104
+	valTypeObject  = 105
+	valTypeNumber  = 106
 )
 
 type JSONString []rune
@@ -28,7 +28,7 @@ type JSONNumber struct {
 }
 
 const (
-	number_set_mark = -128
+	numberSetMark = -128
 )
 
 type JsonElement struct {

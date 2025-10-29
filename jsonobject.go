@@ -5,7 +5,7 @@ import (
 	"reflect"
 )
 
-//JsonObject
+// NewObject JsonObject
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 func NewObject() (obj *JsonObject) {
 	obj = new(JsonObject)
@@ -46,19 +46,19 @@ func (O *JsonObject) GetValues() (arr *JsonArray) {
 	arr = NewArray()
 	for _, v := range O.values {
 		switch v.vType {
-		case val_Type_NULL:
+		case valTypeNull:
 			arr.AddNull()
-		case val_Type_True:
+		case valTypeTrue:
 			arr.AddBool(true)
-		case val_Type_False:
+		case valTypeFalse:
 			arr.AddBool(false)
-		case val_Type_String:
+		case valTypeString:
 			arr.AddString(v.vString.toString())
-		case val_Type_Array:
+		case valTypeArray:
 			arr.AddArray(v.vArray)
-		case val_Type_Object:
+		case valTypeObject:
 			arr.AddObject(v.vObject)
-		case val_Type_Number:
+		case valTypeNumber:
 			arr.AddDouble(v.vNumber.toFloat64())
 		default:
 			panic(fmt.Sprintf(`unknow type %d`, v.vType))
@@ -219,15 +219,15 @@ func (O *JsonObject) Set(k string, v interface{}) {
 func (O *JsonObject) SetBool(k string, v bool) {
 	e0 := O.addElement(JSONString(k))
 	if v {
-		e0.value.vType = val_Type_True
+		e0.value.vType = valTypeTrue
 	} else {
-		e0.value.vType = val_Type_False
+		e0.value.vType = valTypeFalse
 	}
 }
 
 func (O *JsonObject) SetDouble(k string, v float64) {
 	e0 := O.addElement(JSONString(k))
-	e0.value.vType = val_Type_Number
+	e0.value.vType = valTypeNumber
 	e0.value.vNumber.setVal(v)
 }
 
@@ -245,33 +245,33 @@ func (O *JsonObject) SetInt32(k string, v int32) {
 
 func (O *JsonObject) SetInt64(k string, v int64) {
 	e0 := O.addElement(JSONString(k))
-	e0.value.vType = val_Type_Number
+	e0.value.vType = valTypeNumber
 	e0.value.vNumber.setVal(v)
 }
 
 func (O *JsonObject) SetNull(k string) {
 	e0 := O.addElement(JSONString(k))
-	e0.value.vType = val_Type_NULL
+	e0.value.vType = valTypeNull
 }
 
 func (O *JsonObject) SetString(k, v string) {
 	e0 := O.addElement(JSONString(k))
-	e0.value.vType = val_Type_String
+	e0.value.vType = valTypeString
 	e0.value.vString = JSONString(v)
 }
 
 func (O *JsonObject) SetObject(k string, v *JsonObject) {
 	e0 := O.addElement(JSONString(k))
 	if v == nil {
-		e0.value.vType = val_Type_NULL
+		e0.value.vType = valTypeNull
 	} else {
-		e0.value.vType = val_Type_Object
+		e0.value.vType = valTypeObject
 		e0.value.vObject = v
 		var check func(obj *JsonObject)
 		check = func(obj *JsonObject) {
 			for i := 0; i < obj.childCount; i++ {
 				v0 := obj.values[i]
-				if v0.vType == val_Type_Object {
+				if v0.vType == valTypeObject {
 					if v0.vObject == O {
 						panic(`current json object is include in v`)
 					}
@@ -286,18 +286,18 @@ func (O *JsonObject) SetObject(k string, v *JsonObject) {
 func (O *JsonObject) SetArray(k string, v *JsonArray) {
 	e0 := O.addElement(JSONString(k))
 	if v == nil {
-		e0.value.vType = val_Type_NULL
+		e0.value.vType = valTypeNull
 	} else {
-		e0.value.vType = val_Type_Array
+		e0.value.vType = valTypeArray
 		e0.value.vArray = v
 		var check func(arr *JsonArray)
 		check = func(arr *JsonArray) {
 			for i := 0; i < arr.childCount; i++ {
 				v0 := arr.values[i]
-				if v0.vType == val_Type_Object {
+				if v0.vType == valTypeObject {
 					if v0.vObject == O {
 						panic(`current json object is include in v`)
-					} else if v0.vType == val_Type_Array {
+					} else if v0.vType == valTypeArray {
 						check(v0.vArray)
 					}
 				}

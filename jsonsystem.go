@@ -80,7 +80,7 @@ func StringTrim(str string) string {
 	return strings.Trim(str, " \t\n\r")
 }
 
-//JSONNode
+// New JSONNode
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 func New(ss ...string) *JsonNode {
 	var data string
@@ -271,7 +271,7 @@ func (n *JSONNumber) setVal(v interface{}) {
 }
 
 func (n *JSONNumber) toString() string {
-	if n.iSign == number_set_mark {
+	if n.iSign == numberSetMark {
 		return fmt.Sprintf("%g", n.dbl)
 	}
 	s0 := fmt.Sprintf("%d", n.integer)
@@ -305,7 +305,7 @@ func (n *JSONNumber) toString() string {
 }
 
 func (n *JSONNumber) toFloat64() float64 {
-	if n.iSign == number_set_mark {
+	if n.iSign == numberSetMark {
 		return n.dbl
 	}
 	s := n.toString()
@@ -325,7 +325,7 @@ func newJsonElement() (element *JsonElement) {
 func (e *JsonElement) newJsonValue() (obj *JsonValue) {
 	obj = new(JsonValue)
 	obj.e = e
-	obj.vType = val_Type_Invalid
+	obj.vType = valTypeInvalid
 	obj.vObject = nil
 	obj.vArray = nil
 	obj.vString = nil

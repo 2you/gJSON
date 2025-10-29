@@ -12,25 +12,25 @@ func (v *JsonValue) parse(tok *JsonTokenizer) {
 	}
 	idx := tok.offset
 	if tok.currCharIs('"') {
-		v.vType = val_Type_String
+		v.vType = valTypeString
 		v.vString = tok.parseString()
 	} else if tok.currCharIs('[') {
-		v.vType = val_Type_Array
+		v.vType = valTypeArray
 		v.vArray = tok.parseArray()
 	} else if tok.currCharIs('{') {
-		v.vType = val_Type_Object
+		v.vType = valTypeObject
 		v.vObject = tok.parseObject()
 	} else if (tok.currCharIs('-')) || ((tok.data[idx] >= '0') && (tok.data[idx] <= '9')) {
-		v.vType = val_Type_Number
+		v.vType = valTypeNumber
 		v.vNumber = tok.parseNumber()
 	} else if tok.currStrIs("null") {
-		v.vType = val_Type_NULL
+		v.vType = valTypeNull
 		tok.seek(4)
 	} else if tok.currStrIs("false") {
-		v.vType = val_Type_False
+		v.vType = valTypeFalse
 		tok.seek(5)
 	} else if tok.currStrIs("true") {
-		v.vType = val_Type_True
+		v.vType = valTypeTrue
 		tok.seek(4)
 	} else {
 		tok.err = true
@@ -45,9 +45,9 @@ func (v *JsonValue) AsArray() (arr *JsonArray, err error) {
 }
 
 func (v *JsonValue) AsBool() (bool, error) {
-	if v.vType == val_Type_True {
+	if v.vType == valTypeTrue {
 		return true, nil
-	} else if v.vType == val_Type_False {
+	} else if v.vType == valTypeFalse {
 		return false, nil
 	}
 	return false, fmt.Errorf(`json node is not true or false`)
@@ -58,12 +58,12 @@ func (v *JsonValue) AsBoolDef(def bool) bool {
 		return b
 	} else {
 		switch v.vType {
-		case val_Type_Number:
+		case valTypeNumber:
 			if f, _ := v.AsFloat64(); f == 0 {
 				return false
 			}
 			return true
-		case val_Type_String:
+		case valTypeString:
 			if f, e := strconv.ParseFloat(string(v.vString), 64); e == nil {
 				if n := int(f); n == 0 {
 					return false
@@ -112,17 +112,17 @@ func (v *JsonValue) AsFloat64() (val float64, err error) {
 
 func (v *JsonValue) AsFloat64Def(def float64) (val float64) {
 	switch v.vType {
-	case val_Type_Number:
+	case valTypeNumber:
 		return v.vNumber.toFloat64()
-	case val_Type_String:
+	case valTypeString:
 		if f64, err := strconv.ParseFloat(string(v.vString), 64); err == nil {
 			return f64
 		} else {
 			return def
 		}
-	case val_Type_True:
+	case valTypeTrue:
 		return 1
-	case val_Type_False:
+	case valTypeFalse:
 		return 0
 	default:
 		return def
@@ -181,19 +181,19 @@ func (v *JsonValue) AsString() (str string, err error) {
 
 func (v *JsonValue) AsStringDef(def string) (val string) {
 	switch v.vType {
-	case val_Type_Object:
+	case valTypeObject:
 		return v.vObject.AsString()
-	case val_Type_Array:
+	case valTypeArray:
 		return v.vArray.AsString()
-	case val_Type_String:
+	case valTypeString:
 		return v.vString.toString()
-	case val_Type_Number:
+	case valTypeNumber:
 		return v.vNumber.toString()
-	case val_Type_True:
+	case valTypeTrue:
 		return `true`
-	case val_Type_False:
+	case valTypeFalse:
 		return `false`
-	case val_Type_NULL:
+	case valTypeNull:
 		return `null`
 	default:
 		return def
@@ -201,7 +201,7 @@ func (v *JsonValue) AsStringDef(def string) (val string) {
 }
 
 func (v *JsonValue) IsArray() bool {
-	return v.vType == val_Type_Array
+	return v.vType == valTypeArray
 }
 
 func (v *JsonValue) IsBool() bool {
@@ -209,45 +209,45 @@ func (v *JsonValue) IsBool() bool {
 }
 
 func (v *JsonValue) IsTrue() bool {
-	return v.vType == val_Type_True
+	return v.vType == valTypeTrue
 }
 
 func (v *JsonValue) IsFalse() bool {
-	return v.vType == val_Type_False
+	return v.vType == valTypeFalse
 }
 
 func (v *JsonValue) IsNull() bool {
-	return v.vType == val_Type_NULL
+	return v.vType == valTypeNull
 }
 
 func (v *JsonValue) IsNumber() bool {
-	return v.vType == val_Type_Number
+	return v.vType == valTypeNumber
 }
 
 func (v *JsonValue) IsObject() bool {
-	return v.vType == val_Type_Object
+	return v.vType == valTypeObject
 }
 
 func (v *JsonValue) IsString() bool {
-	return v.vType == val_Type_String
+	return v.vType == valTypeString
 }
 
 func (v *JsonValue) print_value(depth int, bfmt bool) string {
 	out := ``
 	switch v.vType {
-	case val_Type_NULL:
+	case valTypeNull:
 		out = `null`
-	case val_Type_False:
+	case valTypeFalse:
 		out = `false`
-	case val_Type_True:
+	case valTypeTrue:
 		out = `true`
-	case val_Type_Number:
+	case valTypeNumber:
 		out = v.print_number()
-	case val_Type_String:
+	case valTypeString:
 		out = v.print_string()
-	case val_Type_Array:
+	case valTypeArray:
 		out = v.print_array(depth, bfmt)
-	case val_Type_Object:
+	case valTypeObject:
 		out = v.print_object(depth, bfmt)
 	}
 	return out

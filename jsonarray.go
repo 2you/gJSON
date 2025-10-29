@@ -72,15 +72,15 @@ func (a *JsonArray) AddArray(v *JsonArray) int {
 	}
 	e0 := a.addElement()
 	if v == nil {
-		e0.value.vType = val_Type_NULL
+		e0.value.vType = valTypeNull
 	} else {
-		e0.value.vType = val_Type_Array
+		e0.value.vType = valTypeArray
 		e0.value.vArray = v
 		var check func(arr *JsonArray)
 		check = func(arr *JsonArray) {
 			for i := 0; i < arr.childCount; i++ {
 				v0 := arr.values[i]
-				if v0.vType == val_Type_Array {
+				if v0.vType == valTypeArray {
 					if v0.vArray == a {
 						panic(`current json array is include in v`)
 					}
@@ -96,16 +96,16 @@ func (a *JsonArray) AddArray(v *JsonArray) int {
 func (a *JsonArray) AddBool(v bool) int {
 	e0 := a.addElement()
 	if v {
-		e0.value.vType = val_Type_True
+		e0.value.vType = valTypeTrue
 	} else {
-		e0.value.vType = val_Type_False
+		e0.value.vType = valTypeFalse
 	}
 	return a.currIndex()
 }
 
 func (a *JsonArray) AddDouble(v float64) int {
 	e0 := a.addElement()
-	e0.value.vType = val_Type_Number
+	e0.value.vType = valTypeNumber
 	e0.value.vNumber.setVal(v)
 	return a.currIndex()
 }
@@ -124,33 +124,33 @@ func (a *JsonArray) AddInt32(v int32) int {
 
 func (a *JsonArray) AddInt64(v int64) int {
 	e0 := a.addElement()
-	e0.value.vType = val_Type_Number
+	e0.value.vType = valTypeNumber
 	e0.value.vNumber.setVal(v)
 	return a.currIndex()
 }
 
 func (a *JsonArray) AddNull() int {
 	e0 := a.addElement()
-	e0.value.vType = val_Type_NULL
+	e0.value.vType = valTypeNull
 	return a.currIndex()
 }
 
 func (a *JsonArray) AddObject(v *JsonObject) int {
 	e0 := a.addElement()
 	if v == nil {
-		e0.value.vType = val_Type_NULL
+		e0.value.vType = valTypeNull
 	} else {
-		e0.value.vType = val_Type_Object
+		e0.value.vType = valTypeObject
 		e0.value.vObject = v
 		var check func(obj *JsonObject)
 		check = func(obj *JsonObject) {
 			for i := 0; i < obj.childCount; i++ {
 				v0 := obj.values[i]
-				if v0.vType == val_Type_Array {
+				if v0.vType == valTypeArray {
 					if v0.vArray == a {
 						panic(`current json array is include in v`)
 					}
-				} else if v0.vType == val_Type_Object {
+				} else if v0.vType == valTypeObject {
 					check(v0.vObject)
 				}
 			}
@@ -162,7 +162,7 @@ func (a *JsonArray) AddObject(v *JsonObject) int {
 
 func (a *JsonArray) AddString(v string) int {
 	e0 := a.addElement()
-	e0.value.vType = val_Type_String
+	e0.value.vType = valTypeString
 	e0.value.vString = JSONString(v)
 	return a.currIndex()
 }
@@ -187,7 +187,7 @@ func (a *JsonArray) GetArray(idx int) *JsonArray {
 	if val := a.Val(idx); val == nil {
 		return nil
 	} else {
-		if val.vType == val_Type_Array {
+		if val.vType == valTypeArray {
 			return val.vArray
 		} else {
 			return nil
@@ -235,7 +235,7 @@ func (a *JsonArray) GetObject(idx int) *JsonObject {
 	if val := a.Val(idx); val == nil {
 		return nil
 	} else {
-		if val.vType == val_Type_Object {
+		if val.vType == valTypeObject {
 			return val.vObject
 		} else {
 			return nil
@@ -263,22 +263,31 @@ func (a *JsonArray) insertValue(idx int) (val *JsonValue) {
 
 func (a *JsonArray) SetArray(idx int, arr *JsonArray) {
 	val := a.insertValue(idx)
-	val.vType = val_Type_Array
+	if val == nil {
+		panic(`json array is nil`)
+	}
+	val.vType = valTypeArray
 	val.vArray = arr
 }
 
 func (a *JsonArray) SetBool(idx int, b bool) {
 	val := a.insertValue(idx)
+	if val == nil {
+		panic(`json array is nil`)
+	}
 	if b {
-		val.vType = val_Type_True
+		val.vType = valTypeTrue
 	} else {
-		val.vType = val_Type_False
+		val.vType = valTypeFalse
 	}
 }
 
 func (a *JsonArray) SetDouble(idx int, f64 float64) {
 	val := a.insertValue(idx)
-	val.vType = val_Type_Number
+	if val == nil {
+		panic(`json array is nil`)
+	}
+	val.vType = valTypeNumber
 	val.vNumber.setVal(f64)
 }
 
@@ -300,18 +309,27 @@ func (a *JsonArray) SetInt64(idx int, i64 int64) {
 
 func (a *JsonArray) SetNull(idx int) {
 	val := a.insertValue(idx)
-	val.vType = val_Type_NULL
+	if val == nil {
+		panic(`json array is nil`)
+	}
+	val.vType = valTypeNull
 }
 
 func (a *JsonArray) SetObject(idx int, obj *JsonObject) {
 	val := a.insertValue(idx)
-	val.vType = val_Type_Object
+	if val == nil {
+		panic(`json array is nil`)
+	}
+	val.vType = valTypeObject
 	val.vObject = obj
 }
 
 func (a *JsonArray) SetString(idx int, s string) {
 	val := a.insertValue(idx)
-	val.vType = val_Type_String
+	if val == nil {
+		panic(`json array is nil`)
+	}
+	val.vType = valTypeString
 	val.vString = JSONString(s)
 }
 
